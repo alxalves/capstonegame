@@ -21,50 +21,58 @@ router.get("/", (req, res) => {
 })
 
 router.get("/highscores", (req, res) => {
-    let hs = [
-      {
-        username: "God",
-        score: 696969,
-      },
-      {
-        username: "Satan",
-        score: 666666,
-      },
-      {
-        username: "Alex",
-        score: 55555,
-      },
-      {
-        username: "Yo Mamma",
-        score: 55554,
-      },
-      {
-        username: "Daddy",
-        score: 6620,
-      },
-      {
-          username: "Test",
-          score: 6601
-      },
-      {
-          username: "Test2",
-          score: 6601
-      },
-      {
-          username: "Test3",
-          score: 5999
-      },
-      {
-          username: "Test4",
-          score: 4888
-      },
-      {
-          username: "Test5",
-          score: 4333
-      },
-    ];
+    // let hs = [
+    //   {
+    //     username: "God",
+    //     score: 696969,
+    //   },
+    //   {
+    //     username: "Satan",
+    //     score: 666666,
+    //   },
+    //   {
+    //     username: "Alex",
+    //     score: 55555,
+    //   },
+    //   {
+    //     username: "Yo Mamma",
+    //     score: 55554,
+    //   },
+    //   {
+    //     username: "Daddy",
+    //     score: 6620,
+    //   },
+    //   {
+    //       username: "Test",
+    //       score: 6601
+    //   },
+    //   {
+    //       username: "Test2",
+    //       score: 6601
+    //   },
+    //   {
+    //       username: "Test3",
+    //       score: 5999
+    //   },
+    //   {
+    //       username: "Test4",
+    //       score: 4888
+    //   },
+    //   {
+    //       username: "Test5",
+    //       score: 4333
+    //   },
+    // ];
 
-    res.json(hs);
+    userSchema.find({}).sort({ highscore: -1}).limit(10)
+    .then(results => {
+        res.json(results);
+    })
+    .catch(error => {
+        res.status(500).json( { "message": "Error fetching highscores" })
+    })
+
+    // res.json(hs);
 })
 
 router.post("/register", 
@@ -132,11 +140,12 @@ router.post("/login", (req, res, next) => {
             return res.status(401).json({ message: 'Authentication failed'})
         }
 
+        console.log('userinfo', u);
         let userToken = jwt.sign(
             {
                 username: u.username,
                 id: u._id,
-                score: u.score
+                highscore: u.highscore
             },
                 "batsecret", //changing this later
                 { expiresIn: "1h" },
@@ -166,19 +175,34 @@ router.get('/user/:id', auth, (req, res) => {
     })
 });
 
-router.post('/score/update', auth, (req, res) => {
-    userSchema.findByIdAndUpdate(req.params.id, {
-        score: req.body.score
+router.post('/score/update/:id', auth, (req, res) => {
+    console.log('scoreupdate',req.body);
+    userSchema.findByIdAndUpdate({_id: req.body._id }, {
+        highscore: parseInt(req.body.highscore)
     },
         (error, data) => {
             if(error) {
-                return(next(error))
+                // return(next(error))
+
+                return res.status(500).json({ error: error});
+
             }
             else {
                 res.json(data);
-                console.log('user updated successfully');
+                console.log('Score updated successfully!');
             }
         }
     )
 })
+
+router.get('/score/:id', (req, res) => {
+        let id = req.params.id;
+        userSchema.findOne({ _id: id})
+        .then(data => {
+            res.json({ highscore: data.highscore });
+        })
+        .catch(error => {
+            res.status(500).json({ message: "User not found"});
+        })
+});
 module.exports = router

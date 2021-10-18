@@ -60,7 +60,7 @@ class PlayScene extends BaseScene{
 
          this.bird.play('flap')
 
-         console.log("playing...");
+        //  console.log("playing...");
     }
 
     update() {
@@ -120,11 +120,37 @@ class PlayScene extends BaseScene{
         this.physics.add.collider(this.bird, this.pipes, this.gameOver, null, this);
 
     }
-    createScore() {
-        const topScoreText = localStorage.getItem("topScore");
+    async createScore() {
+        // const topScoreText = localStorage.getItem("topScore");
+
+        let topScoreText = 0;
+        if(localStorage.getItem("token")) {
+            let data = parseJwt(localStorage.getItem("token"));
+            // console.log('topscore', data);
+            // topScoreText = data.highscore;
+            let id = data.id;
+            let devURL = "http://localhost:3000/score/"+data.id;
+
+            await fetch(devURL, {
+                method: 'GET',
+            })
+            .then(res => res.json())
+            .then(res => {
+                console.log('res', res)
+                topScoreText = res.highscore;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+
+        }
         this.score= 0;
         this.scoreText = this.add.text(16, 16, `Score: ${0}`, {fontSize: '28px', fill: '#ffffff'})
-        this.add.text(16, 52, `Top Score: ${topScoreText || 0}`, {fontSize: "20px",fill: "#ffffff",});
+        this.add.text(16, 52, `Personal Best: ${topScoreText || 0}`, {fontSize: "20px",fill: "#ffffff",});
+
+        if(!localStorage.getItem("token")) {
+            this.add.text(16, 82, `Login to save your score`, {fontSize: "12px",fill: "#ff0000",});
+        }
     }
 
     pauseGame() {
@@ -210,6 +236,7 @@ class PlayScene extends BaseScene{
         if (!topScore || this.score > topScore) {
           localStorage.setItem("topScore", this.score);
         }
+  
     }
     gameOver() {
         this.physics.pause();
@@ -223,6 +250,33 @@ class PlayScene extends BaseScene{
             },
             loop: false 
         })
+
+        if (localStorage.getItem("token")) {
+            let tokendata = parseJwt(localStorage.getItem("token"));
+        
+            if (this.score > parseInt(tokendata.highscore)) {
+            // let devURL = 'http://localhost:3000/score/update'
+            let devURL = "http://localhost:3000/score/update/" + tokendata.id;
+
+            fetch(devURL, {
+                method: 'POST',
+                headers: {
+                "Content-type": "application/json",
+                "Authorization": "Bearer " + localStorage.getItem("token"),
+                },
+                body: JSON.stringify({ _id: tokendata.id, highscore: this.score }),
+            })
+                .then((res) => res.json())
+                .then((res) => {
+                    console.log(res);
+                    alert("New personal highscore saved successfully!");
+                    window.location.reload();
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+            }
+        }
         // this.bird.x = this.config.startPosition.x;
         // this.bird.y = this.config.startPosition.y;
         // this.bird.body.velocity.y= 0

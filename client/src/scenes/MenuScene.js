@@ -7,7 +7,7 @@ class MenuScene extends BaseScene {
 
     this.homePage = [
         {scene: 'PlayScene', text: "Play"},
-        {scene: 'ScoreScene', text: "Score"},
+        {scene: 'ScoreScene', text: "Leaderboards"},
         {scene: null, text: 'Exit'},
     ]
   }

@@ -38,6 +38,32 @@
       integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 
     <script>
+      const resetNavbar = () => {
+         let form = document.getElementById("loginform");
+        let nav = document.getElementById("mainnav");
+        if (localStorage.getItem("token")) {
+          let user = localStorage.getItem("token")
+          let data = parseJwt(user);
+
+          console.log(data);
+          loginform.style = "display: none !important";
+
+          ul = document.createElement("ul");
+          ul.className = "navbar-nav ms-auto mb-2 mb-lg-0";
+
+          //  <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          let navitem = document.createElement("li");
+          navitem.className = "nav-item";
+          let a = document.createElement("a");
+          a.innerText = data.username;
+          a.className = "nav-link";
+
+          navitem.appendChild(a);
+          ul.appendChild(navitem);
+          nav.appendChild(ul);
+      }
+    }
+
       window.addEventListener('DOMContentLoaded', function() {
           let form = document.getElementById("loginform");
           let nav = document.getElementById("mainnav");
@@ -144,6 +170,10 @@
           console.log(await req);
 
           localStorage.setItem("token", req.token);
+          resetNavbar();
+
+          localStorage.setItem("topScore", parseJwt(req.token).highscore);
+
 
         }
         catch(err) {
