@@ -7,10 +7,13 @@
       }</style></head><body class="bg-secondary"><nav class="navbar navbar-expand-lg navbar-dark bg-dark"><div class="container-fluid" id="mainnav"><a class="navbar-brand" href="#">Flappy Bat thing</a><form class="d-flex" onsubmit="event.preventDefault()" id="loginform"><input class="form-control me-2" placeholder="Username" aria-label="Username" id="username"> <input class="form-control me-2" type="password" placeholder="Password" aria-label="Username" id="password"> <button onclick="login()" class="me-2 btn btn-outline-success" type="submit">Login</button> <a class="btn btn-primary" onclick="register()">Register</a></form></div></nav><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script><script>const logout = () => {
           localStorage.removeItem("token");
           let form = document.getElementById("loginform");
-
+          loginform.style.display = "";
+          // let log = document.getElementById("username-container");
+          document.getElementById("username-container").remove();
+          // console.log(log);
       }
       const resetNavbar = () => {
-         let form = document.getElementById("loginform");
+     let form = document.getElementById("loginform");
         let nav = document.getElementById("mainnav");
         if (localStorage.getItem("token")) {
           let user = localStorage.getItem("token")
@@ -21,47 +24,41 @@
 
           ul = document.createElement("ul");
           ul.className = "navbar-nav ms-auto mb-2 mb-lg-0";
-
+          ul.id = "username-container";
           //  <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           let navitem = document.createElement("li");
           navitem.className = "nav-item";
           let a = document.createElement("a");
+
+
+
+
           a.innerText = data.username;
           a.className = "nav-link";
 
+
+          let logbtn = document.createElement("li");
+          logbtn.className = "nav-item";
+          let loginner = document.createElement("button");
+          loginner.className = "btn btn-danger";
+          loginner.innerText = 'Logout';
+          loginner.onclick = function () {
+            logout();
+          };
+
+          logbtn.appendChild(loginner);
+
           navitem.appendChild(a);
           ul.appendChild(navitem);
+          ul.appendChild(logbtn);
           nav.appendChild(ul);
       }
     }
 
       window.addEventListener('DOMContentLoaded', function() {
-          let form = document.getElementById("loginform");
-          let nav = document.getElementById("mainnav");
-          if(localStorage.getItem("token")) {
-            let user = localStorage.getItem("token")
-            let data = parseJwt(user);
 
-            console.log(data);
-            loginform.style = "display: none !important";
-
-            ul = document.createElement("ul");
-            ul.className= "navbar-nav ms-auto mb-2 mb-lg-0";
-
-            //  <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            let navitem = document.createElement("li");
-            navitem.className = "nav-item";
-            let a = document.createElement("a");
-            a.innerText = data.username;
-            a.className = "nav-link";
-
-            navitem.appendChild(a);
-            ul.appendChild(navitem);
-            nav.appendChild(ul);  
-            // alert(data.username);    
-
-
-          }
+          resetNavbar();
+          
 
       })
 

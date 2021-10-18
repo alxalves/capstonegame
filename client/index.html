@@ -41,10 +41,13 @@
       const logout = () => {
           localStorage.removeItem("token");
           let form = document.getElementById("loginform");
-
+          loginform.style.display = "";
+          // let log = document.getElementById("username-container");
+          document.getElementById("username-container").remove();
+          // console.log(log);
       }
       const resetNavbar = () => {
-         let form = document.getElementById("loginform");
+     let form = document.getElementById("loginform");
         let nav = document.getElementById("mainnav");
         if (localStorage.getItem("token")) {
           let user = localStorage.getItem("token")
@@ -55,47 +58,41 @@
 
           ul = document.createElement("ul");
           ul.className = "navbar-nav ms-auto mb-2 mb-lg-0";
-
+          ul.id = "username-container";
           //  <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           let navitem = document.createElement("li");
           navitem.className = "nav-item";
           let a = document.createElement("a");
+
+
+
+
           a.innerText = data.username;
           a.className = "nav-link";
 
+
+          let logbtn = document.createElement("li");
+          logbtn.className = "nav-item";
+          let loginner = document.createElement("button");
+          loginner.className = "btn btn-danger";
+          loginner.innerText = 'Logout';
+          loginner.onclick = function () {
+            logout();
+          };
+
+          logbtn.appendChild(loginner);
+
           navitem.appendChild(a);
           ul.appendChild(navitem);
+          ul.appendChild(logbtn);
           nav.appendChild(ul);
       }
     }
 
       window.addEventListener('DOMContentLoaded', function() {
-          let form = document.getElementById("loginform");
-          let nav = document.getElementById("mainnav");
-          if(localStorage.getItem("token")) {
-            let user = localStorage.getItem("token")
-            let data = parseJwt(user);
 
-            console.log(data);
-            loginform.style = "display: none !important";
-
-            ul = document.createElement("ul");
-            ul.className= "navbar-nav ms-auto mb-2 mb-lg-0";
-
-            //  <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            let navitem = document.createElement("li");
-            navitem.className = "nav-item";
-            let a = document.createElement("a");
-            a.innerText = data.username;
-            a.className = "nav-link";
-
-            navitem.appendChild(a);
-            ul.appendChild(navitem);
-            nav.appendChild(ul);  
-            // alert(data.username);    
-
-
-          }
+          resetNavbar();
+          
 
       })
 
