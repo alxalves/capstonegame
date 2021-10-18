@@ -144,4 +144,30 @@ router.post("/login", (req, res, next) => {
     })
 })
 
+router.get('/user/:id', auth, (req, res) => {
+    userSchema.findById(req.params.id, (error, data) => {
+        if(error) {
+            return(next(error));
+        }
+        else {
+            res.status(200).json({ msg: data });
+        }
+    })
+});
+
+router.post('/score/update', auth, (req, res) => {
+    userSchema.findByIdAndUpdate(req.params.id, {
+        score: req.body.score
+    },
+        (error, data) => {
+            if(error) {
+                return(next(error))
+            }
+            else {
+                res.json(data);
+                console.log('user updated successfully');
+            }
+        }
+    )
+})
 module.exports = router
