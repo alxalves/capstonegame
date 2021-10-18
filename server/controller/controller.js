@@ -4,6 +4,11 @@ const urlParser = express.urlencoded({ extended: false });
 const mongoose = require("mongoose");
 const mongoURI = "mongodb://localhost:27017/" + "capstonegame";
 const db = mongoose.connection;
+const jwt = require('jsonwebtoken');
+
+const bcrypt = require("bcrypt");
+
+const user = require("../models/user");
 
 router.get("/", (req, res) => {
     res.send("... Dinkleberg...")
@@ -57,5 +62,11 @@ router.get("/highscores", (req, res) => {
 })
 
 
+
+router.post("/register", async (req, res, next) => {});
+
+// SIGN IN
+// POST /api/signin
+router.post("/login", async (req, res, next) => {});
 
 module.exports = router
