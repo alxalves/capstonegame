@@ -130,8 +130,10 @@ class PlayScene extends BaseScene{
             // topScoreText = data.highscore;
             let id = data.id;
             let devURL = "http://localhost:3000/score/"+data.id;
+            let prodURL = "http://137.184.218.164:3000/score/" + data.id;
 
-            await fetch(devURL, {
+            // await fetch(devURL, {
+            await fetch(prodURL, {
                 method: 'GET',
             })
             .then(res => res.json())
@@ -238,7 +240,7 @@ class PlayScene extends BaseScene{
         }
   
     }
-    gameOver() {
+     gameOver() {
         this.physics.pause();
         this.bird.setTint(0x9d132f);
         // debugger
@@ -253,29 +255,60 @@ class PlayScene extends BaseScene{
 
         if (localStorage.getItem("token")) {
             let tokendata = parseJwt(localStorage.getItem("token"));
-        
-            if (this.score > parseInt(tokendata.highscore)) {
-            // let devURL = 'http://localhost:3000/score/update'
-            let devURL = "http://localhost:3000/score/update/" + tokendata.id;
-
-            fetch(devURL, {
-                method: 'POST',
-                headers: {
-                "Content-type": "application/json",
-                "Authorization": "Bearer " + localStorage.getItem("token"),
-                },
-                body: JSON.stringify({ _id: tokendata.id, highscore: this.score }),
+            let hsURL = 'http://137.184.218.164:3000/score/' +tokendata.id;
+            let hs = null;
+          
+            fetch(hsURL, {
+                    method: 'GET',
+                    headers: {
+                        'Content-type': 'Application/json'
+                    }
             })
-                .then((res) => res.json())
-                .then((res) => {
-                    console.log(res);
-                    alert("New personal highscore saved successfully!");
-                    window.location.reload();
-                })
-                .catch((error) => {
-                    console.log(error);
-                });
-            }
+            .then(res => res.json())
+            .then(res => {
+                hs = res;
+                console.log('hs', hs);
+
+
+                /////
+                     if (hs == null) return;
+                     console.log("score at game over", this.score);
+                     if (this.score > hs.highscore) {
+                       let prodURL =
+                         "http://137.184.218.164:3000/score/update/" +
+                         tokendata.id;
+
+                       // fetch(devURL, {
+                       fetch(prodURL, {
+                         method: "POST",
+                         headers: {
+                           "Content-type": "application/json",
+                           Authorization:
+                             "Bearer " + localStorage.getItem("token"),
+                         },
+                         body: JSON.stringify({
+                           _id: tokendata.id,
+                           highscore: this.score,
+                         }),
+                       })
+                         .then((res2) => res2.json())
+                         .then((res2) => {
+                           console.log(res2);
+                           alert("New personal highscore saved successfully!");
+                           window.location.reload();
+                         })
+                         .catch((error) => {
+                           console.log(error);
+                         });
+                     }
+
+                /////
+            })
+            .catch(error => {
+                console.error(error);
+                alert('problem saving score');
+            })
+            
         }
         // this.bird.x = this.config.startPosition.x;
         // this.bird.y = this.config.startPosition.y;

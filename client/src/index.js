@@ -9,7 +9,8 @@ import axios from 'axios';
 
 let baseURL;
 // if(process.env.mode =="development") {
-    baseURL = "http://localhost:3000";
+    // baseURL = "http://localhost:3000";
+    baseURL = "http://137.184.218.164:3000";
 // }
 
 // let highscores;

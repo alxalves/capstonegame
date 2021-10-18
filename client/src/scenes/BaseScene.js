@@ -33,8 +33,9 @@ constructor(key, config) {
   async getHighScores() {
         try {
             let hs = await axios.request({
-                url: 'http://localhost:3000/highscores',
-                method: 'GET'
+              // url: 'http://localhost:3000/highscores',
+              url: "http://137.184.218.164:3000/highscores",
+              method: "GET",
             });
 
             this.highscores = hs.data;
