@@ -2,27 +2,155 @@
 <html>
   <head>
     <meta charset="utf-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <style>
-      body {
-        /* padding: 200px; */
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-flow: column nowrap;
-        justify-content: center;
-        height: 100vh;
-        background: #494949;
 
 
-      }
 
       canvas {
         margin: 0 auto;
+        margin-top: 2rem;
+        display: block;
         /* display: inline-block; */
         /* margin-top: 100px; */
       }
     </style>
   </head>
-  <body>
+  <body class="bg-secondary">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid" id="mainnav">
+        <a class="navbar-brand" href="#">Flappy Bat thing</a>
+        
+          <form class="d-flex" onsubmit="event.preventDefault()" id="loginform">
+            <input class="form-control me-2" type="text" placeholder="Username" aria-label="Username" id="username">
+            <input class="form-control me-2" type="password" placeholder="Password" aria-label="Username" id="password">
+            <button onclick="login()" class="me-2 btn btn-outline-success" type="submit">Login</button>
+            <a class=" btn btn-primary" onclick="register()">Register</a>
+           
+          </form>
+          
+        </div>
+      </div>
+    </nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+    <script>
+      window.addEventListener('DOMContentLoaded', function() {
+          let form = document.getElementById("loginform");
+          let nav = document.getElementById("mainnav");
+          if(localStorage.getItem("token")) {
+            let user = localStorage.getItem("token")
+            let data = parseJwt(user);
+
+            console.log(data);
+            loginform.style = "display: none !important";
+
+            ul = document.createElement("ul");
+            ul.className= "navbar-nav ms-auto mb-2 mb-lg-0";
+
+            //  <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            let navitem = document.createElement("li");
+            navitem.className = "nav-item";
+            let a = document.createElement("a");
+            a.innerText = data.username;
+            a.className = "nav-link";
+
+            navitem.appendChild(a);
+            ul.appendChild(navitem);
+            nav.appendChild(ul);  
+            // alert(data.username);    
+
+
+          }
+
+      })
+
+
+
+      function parseJwt(token) {
+          var base64Url = token.split('.')[1];
+          var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          var jsonPayload = decodeURIComponent(atob(base64).split('').map(function (c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+          }).join(''));
+
+          return JSON.parse(jsonPayload);
+        };
+
+      const register = async () => {
+        let username = document.getElementById('username').value;
+        let password = document.getElementById('password').value;
+
+        
+        let obj = {
+          username: username,
+          password: password
+        }
+
+
+        let devURL = 'http://localhost:3000/register';
+
+        try {
+          let req =await fetch(devURL,{ 
+            method: 'POST',
+            body: JSON.stringify(obj),
+            headers: {
+              'Content-type': 'application/json'
+            }
+          })
+          
+          req = await req.json();
+
+          console.log(req);
+
+          if(req?.result?.username) {
+            alert( req.result.username + ' created!');
+            window.location.reload();
+          }
+  
+        }
+        catch(error) {
+          console.log(error);
+        }
+
+      }
+
+      const login = async () => {
+        let username = document.getElementById('username').value;
+        let password = document.getElementById('password').value;
+
+
+        let obj = {
+          username: username,
+          password: password
+        }
+
+
+        let devURL = 'http://localhost:3000/login';
+
+        try {
+          let req = await fetch(devURL, {
+            method: 'POST',
+            body: JSON.stringify(obj),
+            headers: {
+              'Content-type': 'application/json'
+            }
+          });
+
+          req = await req.json();
+          console.log(await req);
+
+          localStorage.setItem("token", req.token);
+
+        }
+        catch(err) {
+          console.log(err);
+          alert(err.message);
+        }
+      };
+    </script>
   </body>
 </html>

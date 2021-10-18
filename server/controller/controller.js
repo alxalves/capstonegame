@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const urlParser = express.urlencoded({ extended: false });
 const { check, validationResult } = require('express-validator');
-
+const bodyParser = require('body-parser');
 
 const mongoose = require("mongoose");
 const mongoURI = "mongodb://localhost:27017/" + "capstonegame";
@@ -10,7 +10,11 @@ const db = mongoose.connection;
 const jwt = require('jsonwebtoken');
 const auth = require('../middleware/auth');
 const bcrypt = require("bcrypt");
-const user = require("../models/user");
+const userSchema = require("../models/user");
+
+router.use(bodyParser.urlencoded({ extended: true}));
+
+router.use(bodyParser.json());
 
 router.get("/", (req, res) => {
     res.send("... Dinkleberg...")
@@ -78,28 +82,35 @@ router.post("/register",
 ],
     (req, res, next) => {
         const errs = validationResult(req);
-        if(!errs.isEmpty()) {
-            return res.status(422).jsonp(errors.array());
-        }
-        else {
-            bcrypt.hash(req.body.password, 10)
-            .then(hash => {
-                const user = new userSchema({ 
-                    username: req.body.username,
-                    password: hash,
-                    score: 0,
-                })
-            })
-                user.save()
-                .then((response) => {
-                    res.status(201).json({ mesage: 'User created successfully', result: response });
-                })
-                .catch(error => {
-                    res.status(500).json({
-                        error: error
-                })
-            })
+        console.log(req.body);
+        if (!errs.isEmpty()) {
+          return res.status(422).jsonp(errs.array());
+        } else {
 
+        let un = req.body.username;
+        let pw = req.body.password;
+        // console.log(req.body);
+
+
+          bcrypt.hash(req.body.password, 10).then((hash) => {
+            const user = new userSchema({
+              username: req.body.username,
+              password: hash,
+            });
+            user
+              .save()
+              .then((response) => {
+                res.status(201).json({
+                  message: "User successfully created.",
+                  result: response,
+                });
+              })
+              .catch((error) => {
+                res.status(500).json({
+                  error: error,
+                });
+              });
+          });
         }
     }
 )
@@ -138,9 +149,9 @@ router.post("/login", (req, res, next) => {
         })
     })
     .catch(error => {
-        return(res.status(401).json({
+        res.status(401).json({
             message: "Authentication failed"
-        }))
+        })
     })
 })
 
